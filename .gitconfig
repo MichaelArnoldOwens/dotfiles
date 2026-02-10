@@ -1,0 +1,56 @@
+# =============================================================================
+# Git Configuration
+#
+# Signing:    All commits and tags are signed with SSH key (not GPG).
+# Diffs:      Uses delta for syntax-highlighted, side-by-side diffs.
+# Ignores:    Global ignores defined in ~/.gitignore_global.
+# Workflow:   Primary git workflow uses Graphite (gt) — see ~/.config/graphite/
+# Identity:   Personal name/email/signing key loaded from ~/.gitconfig.local
+# =============================================================================
+
+# Personal identity is in ~/.gitconfig.local (not committed to dotfiles repo).
+# Each team member creates their own. See .gitconfig.local.template.
+[include]
+	path = ~/.gitconfig.local
+
+[commit]
+	gpgsign = true
+
+[tag]
+	gpgSign = true
+
+# SSH-based signing (modern alternative to GPG)
+[gpg]
+	program = /opt/homebrew/bin/gpg
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed_signers
+
+# Rewrite GitHub HTTPS URLs to SSH so auth uses your SSH key instead of tokens
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+
+[push]
+	default = current
+
+[core]
+	excludesfile = ~/.gitignore_global
+	pager = delta
+
+# delta — syntax-highlighted diffs (https://github.com/dandavison/delta)
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true        # Use n/N to jump between diff sections
+	side-by-side = true    # Show old/new side by side (disable for narrow terminals)
+	line-numbers = true
+
+# Show 3-way diff in merge conflicts (ours / base / theirs)
+[merge]
+	conflictstyle = diff3
+
+# Highlight moved lines in diffs with a different color
+[diff]
+	colorMoved = default

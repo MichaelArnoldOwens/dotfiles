@@ -1,0 +1,35 @@
+# =============================================================================
+# Global .gitignore — applies to ALL repos on this machine.
+# Referenced from ~/.gitconfig via core.excludesfile.
+#
+# For repo-specific ignores, use that repo's .gitignore instead.
+# =============================================================================
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment / secrets (never commit these)
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Logs
+*.log

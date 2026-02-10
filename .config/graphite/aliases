@@ -1,0 +1,31 @@
+
+# =============================================================================
+# Graphite CLI Aliases
+#
+# Usage: gt <alias> instead of gt <full command>
+# Example: gt cb  →  gt create
+#
+# Edit this file to add/change aliases. Delete it to reset to defaults.
+# First word = alias, rest = command it expands to.
+# =============================================================================
+
+# --- Default aliases (provided by Graphite) ---
+ls log short                    # View branch stack (compact)
+ll log long                     # View branch stack (detailed)
+ss submit --stack               # Submit entire stack for review
+
+# --- Branch management ---
+co checkout                     # Switch to a branch
+cb create                       # Create a new branch in the stack
+bd branch delete                # Delete a branch
+bi branch info                  # Show info about current branch
+bs branch submit                # Submit current branch as PR
+
+# --- Commits ---
+cs commit --stack               # Commit and restack dependents
+ca commit --amend               # Amend the last commit
+
+# --- Sync and navigation ---
+rs repo sync                    # Sync repo with remote (pull + restack)
+ds dash                         # Open Graphite web dashboard
+
