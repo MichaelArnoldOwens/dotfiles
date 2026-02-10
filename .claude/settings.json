@@ -17,12 +17,45 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file_path=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if echo \"$file_path\" | grep -q \"$HOME/dotfiles/\"; then cd \"$HOME/dotfiles\" && git add -A && git diff --cached --quiet || git commit -m \"auto: update $(echo \"$file_path\" | sed \"s|$HOME/dotfiles/||\")\"; fi",
+            "async": true,
+            "statusMessage": "Auto-committing dotfiles..."
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file_path=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if echo \"$file_path\" | grep -q \"$HOME/dotfiles/\"; then cd \"$HOME/dotfiles\" && git add -A && git diff --cached --quiet || git commit -m \"auto: update $(echo \"$file_path\" | sed \"s|$HOME/dotfiles/||\")\"; fi",
+            "async": true,
+            "statusMessage": "Auto-committing dotfiles..."
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
             "command": "exit_code=$(echo \"$TOOL_RESULT\" | jq -r '.exitCode // 0'); if [ \"$exit_code\" != \"0\" ]; then echo '[hook] Command exited with non-zero status'; fi",
             "async": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$HOME/dotfiles\" && git add -A && git diff --cached --quiet || git commit -m 'auto: session end sync' && git push 2>/dev/null || true",
+            "statusMessage": "Pushing dotfiles..."
           }
         ]
       }

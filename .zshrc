@@ -178,6 +178,9 @@ alias ce='cursor .'             # Open current dir in Cursor
 alias gs='gt status'            # Branch stack status
 alias gd='gt diff'              # Diff current branch
 
+# Claude Code (auto-continue previous session in current directory)
+alias claude='command claude --continue'
+
 # Shortcuts
 alias cls='clear'
 alias ll='ls -la'
