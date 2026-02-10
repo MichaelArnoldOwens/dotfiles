@@ -145,6 +145,46 @@ export GPG_TTY=$(tty)
 
 . "$HOME/.local/bin/env"
 
+############ TMUX SESSION HELPERS ############
+# Quick shortcuts for the two-session workflow:
+#   dx   — DX/tooling improvements session
+#   feat — Feature development session
+# Each creates or attaches to a named session. Run from outside tmux, or
+# use `prefix + s` inside tmux to switch between sessions.
+
+dx() {
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t dx 2>/dev/null || tmux new-session -d -s dx && tmux switch-client -t dx
+  else
+    tmux attach-session -t dx 2>/dev/null || tmux new-session -s dx
+  fi
+}
+
+feat() {
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t feat 2>/dev/null || tmux new-session -d -s feat && tmux switch-client -t feat
+  else
+    tmux attach-session -t feat 2>/dev/null || tmux new-session -s feat
+  fi
+}
+
+########################################################
+
+############ SHELL ALIASES ############
+# Editor
+alias ce='cursor .'             # Open current dir in Cursor
+
+# Graphite (primary git workflow — see also ~/.config/graphite/aliases)
+alias gs='gt status'            # Branch stack status
+alias gd='gt diff'              # Diff current branch
+
+# Shortcuts
+alias cls='clear'
+alias ll='ls -la'
+alias ..='cd ..'
+alias ...='cd ../..'
+########################################################
+
 ############ GRAPHITE (gt) PRE-COMMIT TIMER ############
 
 gt() {

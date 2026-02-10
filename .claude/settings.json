@@ -1,5 +1,31 @@
 {
   "permissions": {
     "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if the file being written contains any hardcoded secrets, API keys, passwords, or tokens (anything matching patterns like sk-*, AIza*, ghp_*, xoxb-*, or generic password/secret assignments). If secrets are found, respond with BLOCK and explain which secret was detected. If no secrets found, respond with ALLOW. Input: $ARGUMENTS",
+            "statusMessage": "Scanning for secrets..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "exit_code=$(echo \"$TOOL_RESULT\" | jq -r '.exitCode // 0'); if [ \"$exit_code\" != \"0\" ]; then echo '[hook] Command exited with non-zero status'; fi",
+            "async": true
+          }
+        ]
+      }
+    ]
   }
 }
