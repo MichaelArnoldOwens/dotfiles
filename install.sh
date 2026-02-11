@@ -75,6 +75,29 @@ fi
 echo ""
 echo "=== Done ==="
 echo ""
+
+# --- Platform-specific dependency hints ---
+echo "Dependencies you may need to install:"
+echo ""
+case "$(uname -s)" in
+  Darwin)
+    echo "  # macOS (Homebrew)"
+    echo "  brew install git-delta        # syntax-highlighted diffs"
+    echo "  brew install ffmpeg yt-dlp     # video skill (optional)"
+    echo "  pip3 install openai google-generativeai  # video skill (optional)"
+    ;;
+  Linux)
+    echo "  # Linux (apt)"
+    echo "  sudo apt install git-delta     # syntax-highlighted diffs"
+    echo "  sudo apt install ffmpeg        # video skill (optional)"
+    echo "  pip3 install yt-dlp openai google-generativeai  # video skill (optional)"
+    ;;
+  *)
+    echo "  (unknown platform — install git-delta manually)"
+    ;;
+esac
+
+echo ""
 echo "Next steps:"
 echo "  1. Edit ~/.env.local with your API keys"
 echo "  2. Edit ~/.gitconfig.local with your git identity"

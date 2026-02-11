@@ -52,13 +52,24 @@
         ]
       }
     ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$HOME/dotfiles\" && git pull --rebase --autostash 2>/dev/null || echo '[dotfiles] pull failed — may need manual merge'",
+            "statusMessage": "Pulling dotfiles..."
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$HOME/dotfiles\" && git add -- .zshrc .tmux.conf .tmux/ .gitconfig .gitignore_global .gitconfig.local.template .env.local.template .config/ .claude/settings.json install.sh README.md .gitignore && git diff --cached --quiet || git commit -m 'auto: session end sync' && git push 2>/dev/null || true",
-            "statusMessage": "Pushing dotfiles..."
+            "command": "cd \"$HOME/dotfiles\" && git add -A && { git diff --cached --quiet || git commit -m 'auto: session end sync'; } && git pull --rebase --autostash 2>/dev/null && git push 2>/dev/null || echo '[dotfiles] sync failed — will retry next session'",
+            "statusMessage": "Syncing dotfiles..."
           }
         ]
       }

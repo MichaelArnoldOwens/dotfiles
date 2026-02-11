@@ -3,5 +3,14 @@
 .gitconfig.local
 .claude/settings.local.json
 
+# Backup files created by install.sh
+*.backup.*
+
+# Claude Code session state (local-only, varies per machine)
+.claude/projects/
+.claude/teams/
+.claude/tasks/
+.claude/plans/
+
 # macOS
 .DS_Store

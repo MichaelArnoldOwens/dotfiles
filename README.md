@@ -1,17 +1,18 @@
 # Dotfiles
 
-Shared developer environment configs for the team. Optimized for a workflow using **Cursor**, **iTerm2**, **Claude Code**, **tmux**, and **Graphite**.
+Shared developer environment configs for the team. Optimized for a workflow using **Cursor**, **iTerm2**, **Claude Code**, **tmux**, and **Graphite**. Works on both **macOS** (local) and **Linux** (devbox via SSH).
 
 ## What's included
 
 | File | What it configures |
 |------|--------------------|
 | `.tmux.conf` | Pane visibility (inactive dimming), session persistence, vi-style navigation, interactive menus |
+| `.tmux/menus.conf` | Interactive tmux menus (prefix + Space) |
 | `.zshrc` | Oh My Zsh + Powerlevel10k, iTerm2 shell integration, tmux auto-start, Graphite commit timer |
 | `.gitconfig` | Delta syntax-highlighted diffs, SSH commit signing, global gitignore, GitHub SSH rewrite |
 | `.gitignore_global` | Machine-wide ignores: `.DS_Store`, editor files, `.env`, `node_modules`, `__pycache__` |
 | `.config/graphite/aliases` | Shortcuts for stacked PR workflow (`gt cb`, `gt cs`, `gt ss`, etc.) |
-| `.claude/settings.json` | Claude Code `acceptEdits` permission mode (auto-approves file operations) |
+| `.claude/settings.json` | Claude Code `acceptEdits` permission mode, auto-sync hooks, secret scanning |
 
 ## Setup
 
@@ -27,6 +28,7 @@ The install script will:
 - Back up any existing config files (e.g. `~/.tmux.conf.backup.20260209`)
 - Create symlinks from `~` to the repo
 - Generate `~/.env.local` and `~/.gitconfig.local` from templates if they don't exist
+- Print platform-specific dependency install commands
 
 ### 2. Fill in your local config
 
@@ -48,18 +50,28 @@ export GEMINI_API_KEY="your-key-here"
 
 ### 3. Install dependencies
 
-```bash
-# Syntax-highlighted diffs
-brew install git-delta
+#### macOS (Homebrew)
 
-# Tmux plugins (run inside tmux)
+```bash
+brew install git-delta              # syntax-highlighted diffs
+brew install ffmpeg yt-dlp          # video skill (optional)
+pip3 install openai google-generativeai  # video skill (optional)
+```
+
+#### Linux (apt)
+
+```bash
+sudo apt install git-delta          # syntax-highlighted diffs
+sudo apt install ffmpeg             # video skill (optional)
+pip3 install yt-dlp openai google-generativeai  # video skill (optional)
+```
+
+#### Tmux plugins (both platforms)
+
+```bash
+# Run inside tmux:
 # prefix + r        reload config
 # prefix + I        install plugins (resurrect, continuum, which-key)
-
-# Video understanding skill for Claude Code (optional)
-brew install ffmpeg yt-dlp
-pip3 install openai google-generativeai
-npx skills add jrusso1020/video-understand-skills -a claude-code -g
 ```
 
 ### 4. Restart your shell
@@ -68,11 +80,39 @@ npx skills add jrusso1020/video-understand-skills -a claude-code -g
 source ~/.zshrc
 ```
 
+## How syncing works
+
+Claude Code hooks keep dotfiles in sync across machines automatically:
+
+| Event | What happens |
+|-------|-------------|
+| **SessionStart** | `git pull --rebase --autostash` — pulls latest changes, auto-stashes dirty work |
+| **PostToolUse** (Write/Edit) | Auto-commits any dotfile change immediately |
+| **SessionEnd** | `git add -A && commit && pull --rebase && push` — full sync cycle |
+
+The flow is conflict-safe:
+- `--autostash` handles dirty working trees during pull
+- Pull-rebase before push prevents silent push failures
+- If anything fails, the next SessionStart pull will self-heal
+- `.gitignore` prevents secrets and local state from being committed
+
+## Platform-specific behavior
+
+Some features are gated by platform to avoid issues on the wrong OS:
+
+| Feature | macOS | Linux | How it's gated |
+|---------|-------|-------|----------------|
+| Light tmux theme | Yes | No (dark default) | `uname -s` check in `.tmux.conf` |
+| F12 nested tmux toggle | Yes | No | `uname -s` check in `.tmux.conf` |
+| iTerm2 shell integration | Yes | No (skipped) | `$OSTYPE` check in `.zshrc` |
+| `ce` alias (open Cursor) | Yes | No | `$OSTYPE` check in `.zshrc` |
+
 ## File structure
 
 ```
 ~/dotfiles/                     # This repo (version-controlled)
 ├── .tmux.conf                  → ~/.tmux.conf
+├── .tmux/menus.conf            → ~/.tmux/menus.conf
 ├── .zshrc                      → ~/.zshrc
 ├── .gitconfig                  → ~/.gitconfig
 ├── .gitignore_global           → ~/.gitignore_global
