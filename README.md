@@ -111,6 +111,7 @@ Some features are gated by platform to avoid issues on the wrong OS:
 
 ```
 ~/dotfiles/                     # This repo (version-controlled)
+├── CLAUDE.md                   # Claude Code repo instructions (auto-loaded)
 ├── .tmux.conf                  → ~/.tmux.conf
 ├── .tmux/menus.conf            → ~/.tmux/menus.conf
 ├── .zshrc                      → ~/.zshrc
