@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "file_path=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if echo \"$file_path\" | grep -q \"$HOME/dotfiles/\"; then cd \"$HOME/dotfiles\" && git add -A && git diff --cached --quiet || git commit -m \"auto: update $(echo \"$file_path\" | sed \"s|$HOME/dotfiles/||\")\"; fi",
+            "command": "file_path=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if echo \"$file_path\" | grep -q \"$HOME/dotfiles/\"; then cd \"$HOME/dotfiles\" && git add -- \"$file_path\" && git diff --cached --quiet || git commit -m \"auto: update $(echo \"$file_path\" | sed \"s|$HOME/dotfiles/||\")\"; fi",
             "async": true,
             "statusMessage": "Auto-committing dotfiles..."
           }
@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "file_path=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if echo \"$file_path\" | grep -q \"$HOME/dotfiles/\"; then cd \"$HOME/dotfiles\" && git add -A && git diff --cached --quiet || git commit -m \"auto: update $(echo \"$file_path\" | sed \"s|$HOME/dotfiles/||\")\"; fi",
+            "command": "file_path=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if echo \"$file_path\" | grep -q \"$HOME/dotfiles/\"; then cd \"$HOME/dotfiles\" && git add -- \"$file_path\" && git diff --cached --quiet || git commit -m \"auto: update $(echo \"$file_path\" | sed \"s|$HOME/dotfiles/||\")\"; fi",
             "async": true,
             "statusMessage": "Auto-committing dotfiles..."
           }
@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$HOME/dotfiles\" && git add -A && git diff --cached --quiet || git commit -m 'auto: session end sync' && git push 2>/dev/null || true",
+            "command": "cd \"$HOME/dotfiles\" && git add -- .zshrc .tmux.conf .tmux/ .gitconfig .gitignore_global .gitconfig.local.template .env.local.template .config/ .claude/settings.json install.sh README.md .gitignore && git diff --cached --quiet || git commit -m 'auto: session end sync' && git push 2>/dev/null || true",
             "statusMessage": "Pushing dotfiles..."
           }
         ]

@@ -20,8 +20,9 @@
 	gpgSign = true
 
 # SSH-based signing (modern alternative to GPG)
+# Note: gpg.program is set per-machine in ~/.gitconfig.local
+# (e.g. /opt/homebrew/bin/gpg on macOS, /usr/bin/gpg on Linux)
 [gpg]
-	program = /opt/homebrew/bin/gpg
 	format = ssh
 
 [gpg "ssh"]

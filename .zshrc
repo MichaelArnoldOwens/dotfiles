@@ -101,11 +101,12 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Add wisely, as too many plugins slow down shell startup.
 # Plugins:
 #   git     — 200+ git aliases (ga, gc, gp, gl, gst, etc). Run `alias | grep git` to see all.
-#   iterm2  — Enables iTerm2 shell integration (command markers, directory tracking, etc).
-#             Note: Shell integration auto-disables inside tmux to avoid conflicts.
-#             To force it in tmux, set ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX=1.
-plugins=(git iterm2)
-zstyle :omz:plugins:iterm2 shell-integration yes
+#   iterm2  — Enables iTerm2 shell integration (macOS only, auto-skipped elsewhere).
+plugins=(git)
+if [[ "$OSTYPE" == darwin* ]]; then
+  plugins+=(iterm2)
+  zstyle :omz:plugins:iterm2 shell-integration yes
+fi
 
 source $ZSH/oh-my-zsh.sh
 
@@ -171,8 +172,8 @@ feat() {
 ########################################################
 
 ############ SHELL ALIASES ############
-# Editor
-alias ce='cursor .'             # Open current dir in Cursor
+# Editor (macOS only — Cursor is a desktop app)
+[[ "$OSTYPE" == darwin* ]] && alias ce='cursor .'
 
 # Graphite (primary git workflow — see also ~/.config/graphite/aliases)
 alias gs='gt status'            # Branch stack status
@@ -198,7 +199,8 @@ gt() {
     return
   fi
 
-  local STATS_FILE="$HOME/Library/Application Support/git-precommit-stats.json"
+  local STATS_FILE="${XDG_DATA_HOME:-$HOME/.local/share}/git-precommit-stats.json"
+  # macOS fallback: uses ~/.local/share/ (same as Linux) instead of ~/Library/Application Support/
   mkdir -p "$(dirname "$STATS_FILE")"
   [[ -f "$STATS_FILE" ]] || echo "{}" > "$STATS_FILE"
 

@@ -17,6 +17,7 @@ TIMESTAMP=$(date +%Y%m%d%H%M%S)
 # Files to symlink: "repo_path:target_path"
 LINKS=(
   ".tmux.conf:$HOME/.tmux.conf"
+  ".tmux/menus.conf:$HOME/.tmux/menus.conf"
   ".zshrc:$HOME/.zshrc"
   ".gitconfig:$HOME/.gitconfig"
   ".gitignore_global:$HOME/.gitignore_global"
