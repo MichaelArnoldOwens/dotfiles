@@ -172,4 +172,4 @@ The repo `.gitignore` and `~/.gitignore_global` both exclude these files.
 | `prefix + Ctrl-s` | Save session |
 | `prefix + Ctrl-r` | Restore session |
 
-Prefix is `Ctrl+b`.
+Prefix is `Ctrl+Space` (changed from default `Ctrl+b` to avoid conflict with Claude Code's background-task shortcut).
