@@ -100,13 +100,30 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 # Plugins:
-#   git     — 200+ git aliases (ga, gc, gp, gl, gst, etc). Run `alias | grep git` to see all.
-#   iterm2  — Enables iTerm2 shell integration (macOS only, auto-skipped elsewhere).
-plugins=(git)
+#   git                — 200+ git aliases (ga, gc, gp, gl, gst, etc). Run `alias | grep git` to see all.
+#   iterm2             — Enables iTerm2 shell integration (macOS only, auto-skipped elsewhere).
+#   zsh-autosuggestions — Fish-like inline suggestions (grey shadow text as you type, → to accept).
+#   zsh-completions    — Extra completion definitions for hundreds of CLI tools.
+plugins=(git zsh-autosuggestions zsh-completions)
 if [[ "$OSTYPE" == darwin* ]]; then
   plugins+=(iterm2)
   zstyle :omz:plugins:iterm2 shell-integration yes
 fi
+
+# --- Completion system ---
+# Menu-driven completion: tab cycles through options shown in a list
+zstyle ':completion:*' menu select
+# Case-insensitive matching (abc matches Abc, ABC, etc.)
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+# Group completions by category with headers
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '%F{cyan}-- %d --%f'
+
+# --- Autosuggestion settings ---
+# Use history first, then completion engine as fallback
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+# Subtle grey for the inline suggestion
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=245"
 
 source $ZSH/oh-my-zsh.sh
 
