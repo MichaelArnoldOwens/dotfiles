@@ -52,6 +52,28 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TMUX\" ] && tmux set -w @claude_status processing",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$TMUX\" ] && tmux set -w @claude_status done",
+            "async": true
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [
@@ -70,6 +92,11 @@
             "type": "command",
             "command": "cd \"$HOME/dotfiles\" && git add -A && { git diff --cached --quiet || git commit -m 'auto: session end sync'; } && git pull --rebase --autostash 2>/dev/null && git push 2>/dev/null || echo '[dotfiles] sync failed — will retry next session'",
             "statusMessage": "Syncing dotfiles..."
+          },
+          {
+            "type": "command",
+            "command": "[ -n \"$TMUX\" ] && tmux set -w -u @claude_status",
+            "async": true
           }
         ]
       }
