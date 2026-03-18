@@ -23,6 +23,7 @@ LINKS=(
   ".gitignore_global:$HOME/.gitignore_global"
   ".config/graphite/aliases:$HOME/.config/graphite/aliases"
   ".claude/settings.json:$HOME/.claude/settings.json"
+  ".local/bin/claude-restart-all:$HOME/.local/bin/claude-restart-all"
 )
 
 echo "=== Dotfiles Installer ==="

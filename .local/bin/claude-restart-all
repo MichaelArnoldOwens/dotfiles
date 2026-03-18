@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Restart all Claude Code instances running in tmux panes.
+# Each instance is restarted with `claude --continue` to preserve session context.
+#
+# Usage: claude-restart-all [--dry-run]
+
+set -euo pipefail
+
+DRY_RUN=false
+[[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
+
+if ! tmux info &>/dev/null 2>&1; then
+  echo "No tmux server running." >&2
+  exit 1
+fi
+
+restarted=0
+
+while IFS=' ' read -r pane shell_pid; do
+  # Check if a child process of this pane's shell is claude
+  if ! pgrep -P "$shell_pid" -f "claude" >/dev/null 2>&1; then
+    continue
+  fi
+
+  echo "Found Claude in $pane (shell pid: $shell_pid)"
+
+  if $DRY_RUN; then
+    restarted=$((restarted + 1))
+    continue
+  fi
+
+  # Interrupt current work
+  tmux send-keys -t "$pane" C-c
+  sleep 0.5
+
+  # Graceful exit
+  tmux send-keys -t "$pane" "/exit" Enter
+
+  # Wait up to 10s for exit
+  for _ in $(seq 1 10); do
+    pgrep -P "$shell_pid" -f "claude" >/dev/null 2>&1 || break
+    sleep 1
+  done
+
+  # Force stop if needed
+  if pgrep -P "$shell_pid" -f "claude" >/dev/null 2>&1; then
+    echo "  Force-stopping..."
+    pkill -P "$shell_pid" -f "claude" 2>/dev/null || true
+    sleep 1
+  fi
+
+  # Restart with --continue
+  tmux send-keys -t "$pane" "claude --continue" Enter
+  echo "  Restarted."
+
+  restarted=$((restarted + 1))
+done < <(tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index} #{pane_pid}' 2>/dev/null)
+
+if [ "$restarted" -eq 0 ]; then
+  echo "No Claude instances found in tmux."
+else
+  if $DRY_RUN; then
+    echo "Would restart $restarted Claude instance(s)."
+  else
+    echo "Restarted $restarted Claude instance(s)."
+  fi
+fi
