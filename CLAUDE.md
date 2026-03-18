@@ -23,6 +23,7 @@ This repo is shared between macOS (local) and Linux (devbox). All changes must w
 |------|---------|
 | `install.sh` | Symlink installer + platform-specific dependency hints |
 | `.claude/settings.json` | Hooks, permissions, env vars — synced to all machines |
+| `.claude/mcp-servers.json` | MCP server definitions — merged into `~/.claude.json` by install.sh |
 | `.gitignore` | Protects `git add -A` from staging secrets/backups/state |
 | `.env.local.template` | Reference for local API keys |
 | `.gitconfig.local.template` | Reference for local git identity |

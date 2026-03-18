@@ -13,6 +13,7 @@ Shared developer environment configs for the team. Optimized for a workflow usin
 | `.gitignore_global` | Machine-wide ignores: `.DS_Store`, editor files, `.env`, `node_modules`, `__pycache__` |
 | `.config/graphite/aliases` | Shortcuts for stacked PR workflow (`gt cb`, `gt cs`, `gt ss`, etc.) |
 | `.claude/settings.json` | Claude Code `acceptEdits` permission mode, auto-sync hooks, secret scanning |
+| `.claude/mcp-servers.json` | MCP server definitions (merged into `~/.claude.json` by install.sh) |
 
 ## Setup
 
@@ -119,6 +120,7 @@ Some features are gated by platform to avoid issues on the wrong OS:
 ├── .gitignore_global           → ~/.gitignore_global
 ├── .config/graphite/aliases    → ~/.config/graphite/aliases
 ├── .claude/settings.json       → ~/.claude/settings.json
+├── .claude/mcp-servers.json    # MCP servers (merged into ~/.claude.json)
 ├── .env.local.template         # Reference for ~/.env.local
 ├── .gitconfig.local.template   # Reference for ~/.gitconfig.local
 └── install.sh                  # Symlink installer
@@ -139,6 +141,26 @@ All secrets and personal identity live in local-only files that are **never comm
 - `~/.config/graphite/user_config` — created by `gt auth`
 
 The repo `.gitignore` and `~/.gitignore_global` both exclude these files.
+
+## MCP servers
+
+The following MCP servers are pre-configured and merged into `~/.claude.json` by `install.sh`:
+
+| Server | Type | What it provides |
+|--------|------|------------------|
+| PostHog | HTTP | Analytics queries, feature flags, experiments |
+| Datadog | HTTP | Logs, metrics, monitors, incidents, dashboards |
+| Mux | HTTP | Video asset management, playback, QoE data |
+| Linear | HTTP | Issue tracking, projects, documents |
+| Notion | HTTP | Pages, databases, team wikis |
+| Slack | HTTP + OAuth | Channel search, messaging, canvases |
+| Graphite | stdio (`gt mcp`) | Stacked PR workflow (requires `gt` installed) |
+
+HTTP servers authenticate via browser OAuth on first use. Slack requires an additional OAuth handshake (port 3118).
+
+**Cloud connectors** (claude.ai Figma, Excalidraw) and **plugins** (figma, ralph-loop) are account-level — they follow your Anthropic login and don't need local config.
+
+To add or remove servers, edit `.claude/mcp-servers.json` and re-run `./install.sh`.
 
 ## Graphite aliases
 

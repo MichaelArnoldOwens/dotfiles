@@ -77,18 +77,45 @@ echo ""
 echo "=== Done ==="
 echo ""
 
+# --- Merge MCP servers into ~/.claude.json ---
+# MCP servers live in ~/.claude.json (the state file), not settings.json.
+# We merge our definitions without overwriting other state (metrics, caches, etc.).
+MCP_CONFIG="$DOTFILES_DIR/.claude/mcp-servers.json"
+CLAUDE_JSON="$HOME/.claude.json"
+if [[ -f "$MCP_CONFIG" ]] && command -v jq &>/dev/null; then
+  if [[ -f "$CLAUDE_JSON" ]]; then
+    # Merge global MCP servers into the top-level mcpServers key
+    GLOBAL_SERVERS=$(jq -r '.global' "$MCP_CONFIG")
+    UPDATED=$(jq --argjson servers "$GLOBAL_SERVERS" '.mcpServers = (.mcpServers // {}) * $servers' "$CLAUDE_JSON")
+    echo "$UPDATED" > "$CLAUDE_JSON"
+    echo "  [merge] MCP servers → $CLAUDE_JSON"
+  else
+    # Create minimal ~/.claude.json with just the MCP servers
+    jq -n --argjson servers "$(jq '.global' "$MCP_CONFIG")" '{mcpServers: $servers}' > "$CLAUDE_JSON"
+    echo "  [created] $CLAUDE_JSON with MCP servers"
+  fi
+else
+  if ! command -v jq &>/dev/null; then
+    echo "  [skip] MCP servers — jq not installed (brew install jq / apt install jq)"
+  fi
+fi
+
+echo ""
+
 # --- Platform-specific dependency hints ---
 echo "Dependencies you may need to install:"
 echo ""
 case "$(uname -s)" in
   Darwin)
     echo "  # macOS (Homebrew)"
-    echo "  brew install git-delta        # syntax-highlighted diffs"
+    echo "  brew install jq                # JSON processing (required for MCP server setup)"
+    echo "  brew install git-delta         # syntax-highlighted diffs"
     echo "  brew install ffmpeg yt-dlp     # video skill (optional)"
     echo "  pip3 install openai google-generativeai  # video skill (optional)"
     ;;
   Linux)
     echo "  # Linux (apt)"
+    echo "  sudo apt install jq            # JSON processing (required for MCP server setup)"
     echo "  sudo apt install git-delta     # syntax-highlighted diffs"
     echo "  sudo apt install ffmpeg        # video skill (optional)"
     echo "  pip3 install yt-dlp openai google-generativeai  # video skill (optional)"
