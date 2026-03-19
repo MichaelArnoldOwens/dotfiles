@@ -8,6 +8,8 @@ Restart every Claude Code instance running across tmux panes. Each instance exit
 
 **Note:** This instance will also be restarted. That's intentional — `--continue` will resume this conversation from its last saved state.
 
+**Queuing behavior:** If other Claude instances are currently busy (running tools/commands), the restart is automatically queued and waits until they all become idle before proceeding. Pass `--force` to skip the wait and restart immediately.
+
 ## Instructions
 
 1. Show the user which panes will be restarted:
@@ -18,7 +20,13 @@ Restart every Claude Code instance running across tmux panes. Each instance exit
 
 2. If `$ARGUMENTS` contains `--dry-run` or `--preview`, stop here and report the dry-run output.
 
-3. Otherwise, proceed immediately (no confirmation needed — the user already invoked this intentionally):
+3. If `$ARGUMENTS` contains `--force`, restart immediately without waiting:
+
+```bash
+~/.local/bin/claude-restart-all --force
+```
+
+4. Otherwise, proceed (the script will auto-queue if any instances are busy):
 
 ```bash
 ~/.local/bin/claude-restart-all
