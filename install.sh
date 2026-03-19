@@ -24,6 +24,7 @@ LINKS=(
   ".config/graphite/aliases:$HOME/.config/graphite/aliases"
   ".claude/settings.json:$HOME/.claude/settings.json"
   ".local/bin/claude-restart-all:$HOME/.local/bin/claude-restart-all"
+  ".claude/skills/claude-reload-all:$HOME/.claude/skills/claude-reload-all"
 )
 
 echo "=== Dotfiles Installer ==="
