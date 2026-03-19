@@ -72,6 +72,15 @@
             "async": true
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "(SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); N=$(basename \"$PWD\"); printf '{\"message\":\"Claude Code finished (%s)\",\"sound\":\"Pop\",\"tmux_socket\":\"%s\",\"tmux_target\":\"%s\"}' \"$N\" \"$SOCK\" \"$TARGET\" | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -79,7 +88,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$HOME/dotfiles\" && git pull --rebase --autostash 2>/dev/null || echo '[dotfiles] pull failed — may need manual merge'",
+            "command": "cd \"$HOME/dotfiles\" && git pull --rebase --autostash 2>/dev/null || echo '[dotfiles] pull failed \u2014 may need manual merge'",
             "statusMessage": "Pulling dotfiles..."
           }
         ]
@@ -90,13 +99,24 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$HOME/dotfiles\" && git add -A && { git diff --cached --quiet || git commit -m 'auto: session end sync'; } && git pull --rebase --autostash 2>/dev/null && git push 2>/dev/null || echo '[dotfiles] sync failed — will retry next session'",
+            "command": "cd \"$HOME/dotfiles\" && git add -A && { git diff --cached --quiet || git commit -m 'auto: session end sync'; } && git pull --rebase --autostash 2>/dev/null && git push 2>/dev/null || echo '[dotfiles] sync failed \u2014 will retry next session'",
             "statusMessage": "Syncing dotfiles..."
           },
           {
             "type": "command",
             "command": "[ -n \"$TMUX\" ] && tmux set -w -u @claude_status",
             "async": true
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "(SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); N=$(basename \"$PWD\"); printf '{\"message\":\"Claude Code needs input (%s)\",\"sound\":\"Pop\",\"tmux_socket\":\"%s\",\"tmux_target\":\"%s\"}' \"$N\" \"$SOCK\" \"$TARGET\" | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
+            "timeout": 5
           }
         ]
       }

@@ -102,6 +102,23 @@ fi
 
 echo ""
 
+# --- Install claude-notify server (macOS only) ---
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  NOTIFY_SERVER_DIR="$DOTFILES_DIR/claude-notify/server"
+  PLIST_SRC="$NOTIFY_SERVER_DIR/com.claude.notify-server.plist"
+  PLIST_DST="$HOME/Library/LaunchAgents/com.claude.notify-server.plist"
+
+  chmod +x "$NOTIFY_SERVER_DIR/claude-notify-server.py" 2>/dev/null || true
+  chmod +x "$NOTIFY_SERVER_DIR/switch-tmux-pane.sh" 2>/dev/null || true
+
+  mkdir -p "$HOME/Library/LaunchAgents"
+  sed "s|NOTIFY_SERVER_PATH|$NOTIFY_SERVER_DIR|g" "$PLIST_SRC" > "$PLIST_DST"
+
+  launchctl unload "$PLIST_DST" 2>/dev/null || true
+  launchctl load "$PLIST_DST"
+  echo "  [claude-notify] server started (port 19418)"
+fi
+
 # --- Platform-specific dependency hints ---
 echo "Dependencies you may need to install:"
 echo ""
@@ -110,6 +127,7 @@ case "$(uname -s)" in
     echo "  # macOS (Homebrew)"
     echo "  brew install jq                # JSON processing (required for MCP server setup)"
     echo "  brew install git-delta         # syntax-highlighted diffs"
+    echo "  brew install terminal-notifier # macOS notifications (required for claude-notify)"
     echo "  brew install ffmpeg yt-dlp     # video skill (optional)"
     echo "  pip3 install openai google-generativeai  # video skill (optional)"
     ;;
