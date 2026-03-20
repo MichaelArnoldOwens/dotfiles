@@ -77,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "(SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); N=$(basename \"$PWD\"); printf '{\"message\":\"Claude Code finished (%s)\",\"sound\":\"Pop\",\"tmux_socket\":\"%s\",\"tmux_target\":\"%s\"}' \"$N\" \"$SOCK\" \"$TARGET\" | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
+            "command": "(SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); N=$(basename \"$PWD\"); printf '{\"message\":\"done · %s\",\"subtitle\":\"%s\",\"sound\":\"Pop\",\"tmux_socket\":\"%s\",\"tmux_target\":\"%s\"}' \"$TARGET\" \"$N\" \"$SOCK\" \"$TARGET\" | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
             "timeout": 5
           }
         ]
@@ -115,7 +115,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "(SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); N=$(basename \"$PWD\"); printf '{\"message\":\"Claude Code needs input (%s)\",\"sound\":\"Pop\",\"tmux_socket\":\"%s\",\"tmux_target\":\"%s\"}' \"$N\" \"$SOCK\" \"$TARGET\" | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
+            "command": "(SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); N=$(basename \"$PWD\"); printf '{\"message\":\"needs input · %s\",\"subtitle\":\"%s\",\"sound\":\"Pop\",\"tmux_socket\":\"%s\",\"tmux_target\":\"%s\"}' \"$TARGET\" \"$N\" \"$SOCK\" \"$TARGET\" | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
             "timeout": 5
           }
         ]

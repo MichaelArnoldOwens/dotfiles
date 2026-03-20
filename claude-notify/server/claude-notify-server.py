@@ -18,6 +18,7 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length)) if length else {}
         msg = body.get("message", "Claude Code needs attention")
+        subtitle = body.get("subtitle", "")
         sound = body.get("sound", "Glass")
         folder = body.get("folder", "")
         is_ssh = body.get("ssh", False)
@@ -38,15 +39,11 @@ class Handler(BaseHTTPRequestHandler):
             )
         )
         if notifier:
-            subprocess.Popen(
-                [
-                    notifier,
-                    "-title", "Claude Code",
-                    "-message", msg,
-                    "-sound", sound,
-                    "-execute", execute_cmd,
-                ]
-            )
+            cmd = [notifier, "-title", "Claude Code", "-message", msg,
+                   "-sound", sound, "-execute", execute_cmd]
+            if subtitle:
+                cmd += ["-subtitle", subtitle]
+            subprocess.Popen(cmd)
         self.send_response(200)
         self.end_headers()
 
