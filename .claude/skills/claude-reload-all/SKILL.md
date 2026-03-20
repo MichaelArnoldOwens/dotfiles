@@ -10,6 +10,8 @@ Restart every Claude Code instance running across tmux panes. Each instance exit
 
 **Queuing behavior:** If other Claude instances are currently busy (running tools/commands), the restart is automatically queued and waits until they all become idle before proceeding. Pass `--force` to skip the wait and restart immediately.
 
+**Protected sessions:** The `main` session is protected and skipped by default. Pass `--include-main` to include it.
+
 ## Instructions
 
 1. Show the user which panes will be restarted:
@@ -26,7 +28,13 @@ Restart every Claude Code instance running across tmux panes. Each instance exit
 ~/.local/bin/claude-restart-all --force
 ```
 
-4. Otherwise, proceed (the script will auto-queue if any instances are busy):
+4. If `$ARGUMENTS` contains `--include-main`, pass it through to include the protected main session:
+
+```bash
+~/.local/bin/claude-restart-all --include-main
+```
+
+5. Otherwise, proceed (the script will auto-queue if any instances are busy, and skip main):
 
 ```bash
 ~/.local/bin/claude-restart-all
