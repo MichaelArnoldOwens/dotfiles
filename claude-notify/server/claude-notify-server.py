@@ -18,6 +18,7 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length)) if length else {}
         msg = body.get("message", "Claude Code needs attention")
+        title = body.get("title", "Claude Code")
         subtitle = body.get("subtitle", "")
         sound = body.get("sound", "Glass")
         folder = body.get("folder", "")
@@ -39,7 +40,7 @@ class Handler(BaseHTTPRequestHandler):
             )
         )
         if notifier:
-            cmd = [notifier, "-title", "Claude Code", "-message", msg,
+            cmd = [notifier, "-title", title, "-message", msg,
                    "-sound", sound, "-execute", execute_cmd]
             if subtitle:
                 cmd += ["-subtitle", subtitle]
