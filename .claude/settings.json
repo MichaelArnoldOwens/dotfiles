@@ -88,7 +88,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$HOME/dotfiles\" && git pull --rebase --autostash 2>/dev/null || echo '[dotfiles] pull failed \u2014 may need manual merge'",
+            "command": "cd \"$HOME/dotfiles\" && git pull --rebase --autostash 2>/dev/null || echo '[dotfiles] pull failed — may need manual merge'",
             "statusMessage": "Pulling dotfiles..."
           }
         ]
@@ -99,7 +99,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$HOME/dotfiles\" && git add -A && { git diff --cached --quiet || git commit -m 'auto: session end sync'; } && git pull --rebase --autostash 2>/dev/null && git push 2>/dev/null || echo '[dotfiles] sync failed \u2014 will retry next session'",
+            "command": "cd \"$HOME/dotfiles\" && git add -A && { git diff --cached --quiet || git commit -m 'auto: session end sync'; } && git pull --rebase --autostash 2>/dev/null && git push 2>/dev/null || echo '[dotfiles] sync failed — will retry next session'",
             "statusMessage": "Syncing dotfiles..."
           },
           {
@@ -128,6 +128,5 @@
     "slack@claude-plugins-official": true
   },
   "effortLevel": "high",
-  "skipDangerousModePermissionPrompt": true,
-  "model": "sonnet"
+  "skipDangerousModePermissionPrompt": true
 }
