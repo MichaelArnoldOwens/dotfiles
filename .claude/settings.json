@@ -72,15 +72,6 @@
             "async": true
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "(SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -t \"$TMUX_PANE\" -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); TITLE=$(tmux display-message -t \"$TMUX_PANE\" -p '#{window_name}' 2>/dev/null); jq -n --arg title \"$TITLE\" --arg sock \"$SOCK\" --arg target \"$TARGET\" '{message:\"done\",title:$title,sound:\"Pop\",tmux_socket:$sock,tmux_target:$target}' | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
-            "timeout": 5
-          }
-        ]
       }
     ],
     "SessionStart": [
@@ -106,17 +97,6 @@
             "type": "command",
             "command": "[ -n \"$TMUX\" ] && tmux set -w -u @claude_status",
             "async": true
-          }
-        ]
-      }
-    ],
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "(DATA=$(cat); SOCK=$(printf '%s' \"$TMUX\" | cut -d, -f1); TARGET=$(tmux display-message -t \"$TMUX_PANE\" -p '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null); TITLE=$(tmux display-message -t \"$TMUX_PANE\" -p '#{window_name}' 2>/dev/null); MSG=$(printf '%s' \"$DATA\" | jq -r '.message // \"needs your input\"' 2>/dev/null || echo 'needs your input'); jq -n --arg title \"$TITLE\" --arg msg \"$MSG\" --arg sock \"$SOCK\" --arg target \"$TARGET\" '{message:$msg,title:$title,sound:\"Pop\",tmux_socket:$sock,tmux_target:$target}' | curl -s -m 2 -X POST -H 'Content-type: application/json' -d @- http://localhost:19418 &) &",
-            "timeout": 5
           }
         ]
       }
