@@ -13,9 +13,17 @@ alias tmux-reload='tmux source-file ~/.tmux.conf && echo "tmux config reloaded!"
 # - Only starts if tmux is installed
 # - Only starts if not already inside tmux
 # - Only starts for interactive shells
-# - Attaches to existing session "main" or creates it
+# - Uses "grouped sessions" so each Ghostty window gets its own independent
+#   view of the shared windows (can look at different windows simultaneously).
+#   Closing a Ghostty window destroys the grouped session but keeps the windows.
 if command -v tmux &> /dev/null && [[ -z "$TMUX" ]] && [[ $- == *i* ]]; then
-  tmux attach-session -t main 2>/dev/null || tmux new-session -s main
+  if tmux has-session -t main 2>/dev/null; then
+    # Create a grouped session linked to "main" with a unique name.
+    # -t main = group with "main" (shares windows, independent current-window).
+    exec tmux new-session -t main
+  else
+    exec tmux new-session -s main
+  fi
 fi
 
 ########################################################
