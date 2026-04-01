@@ -25,6 +25,7 @@ LINKS=(
   ".claude/settings.json:$HOME/.claude/settings.json"
   ".local/bin/claude-restart-all:$HOME/.local/bin/claude-restart-all"
   ".claude/skills/claude-reload-all:$HOME/.claude/skills/claude-reload-all"
+  ".p10k.zsh:$HOME/.p10k.zsh"
 )
 
 echo "=== Dotfiles Installer ==="
