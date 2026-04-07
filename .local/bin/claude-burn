@@ -1,0 +1,220 @@
+#!/usr/bin/env python3
+"""Display daily Claude Code output token usage for tmux status-right.
+
+Scans JSONL transcript files in ~/.claude/projects/, aggregates output_tokens
+from assistant messages, and outputs a tmux-formatted string with a 7-day
+sparkline trend and optional color thresholds.
+
+Usage in tmux.conf:
+    set -g status-right '#(~/.local/bin/claude-burn) ...'
+
+Configuration (optional):
+    ~/.config/claude-burn/config
+        warn=500000
+        alert=1500000
+"""
+
+import json
+import os
+from datetime import datetime, timedelta
+from pathlib import Path
+
+PROJECTS_DIR = Path.home() / ".claude" / "projects"
+CACHE_DIR = Path.home() / ".cache" / "claude-burn"
+CONFIG_FILE = Path.home() / ".config" / "claude-burn" / "config"
+SPARKLINE_CHARS = "▁▂▃▄▅▆▇█"
+
+
+def parse_timestamp(ts: str) -> datetime | None:
+    """Parse a UTC ISO 8601 timestamp to a timezone-aware datetime."""
+    try:
+        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        return None
+
+
+def local_date(ts: str):
+    """Convert a UTC timestamp string to the local calendar date."""
+    dt = parse_timestamp(ts)
+    if dt is None:
+        return None
+    return dt.astimezone().date()
+
+
+def scan_tokens_for_dates(dates: set) -> dict[str, int]:
+    """Single walk: scan JSONL files and sum output_tokens for multiple dates at once."""
+    totals = {d.isoformat(): 0 for d in dates}
+    # Only open files modified within the last 2 days (covers today + yesterday)
+    cutoff_time = (datetime.now() - timedelta(days=2)).timestamp()
+
+    if not PROJECTS_DIR.exists():
+        return totals
+
+    for root, _dirs, files in os.walk(PROJECTS_DIR):
+        for fname in files:
+            if not fname.endswith(".jsonl"):
+                continue
+            fpath = os.path.join(root, fname)
+            try:
+                if os.path.getmtime(fpath) < cutoff_time:
+                    continue
+                with open(fpath) as f:
+                    for line in f:
+                        # Fast pre-filter: skip lines without output_tokens
+                        if '"output_tokens"' not in line:
+                            continue
+                        if '"assistant"' not in line:
+                            continue
+                        try:
+                            entry = json.loads(line)
+                            if entry.get("type") != "assistant":
+                                continue
+                            usage = entry.get("message", {}).get("usage", {})
+                            out_tokens = usage.get("output_tokens", 0)
+                            if out_tokens == 0:
+                                continue
+                            ts = entry.get("timestamp")
+                            if ts:
+                                d = local_date(ts)
+                                if d and d.isoformat() in totals:
+                                    totals[d.isoformat()] += out_tokens
+                        except (json.JSONDecodeError, KeyError, TypeError):
+                            continue
+            except (OSError, PermissionError):
+                continue
+    return totals
+
+
+def get_daily_totals(today) -> list[int]:
+    """Get 7 days of token totals using cache for historical days."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    dates = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    results = []
+    dates_to_scan = set()
+
+    # Today and yesterday always get recomputed (cross-midnight sessions)
+    for d in dates:
+        if d >= today - timedelta(days=1):
+            dates_to_scan.add(d)
+        else:
+            cache_file = CACHE_DIR / f"day-{d.isoformat()}.txt"
+            if cache_file.exists():
+                try:
+                    results.append((d, int(cache_file.read_text().strip())))
+                    continue
+                except (ValueError, OSError):
+                    pass
+            # Cache miss — return 0 (cache warms over 7 days)
+            results.append((d, 0))
+
+    # Single walk for today + yesterday
+    if dates_to_scan:
+        scanned = scan_tokens_for_dates(dates_to_scan)
+        for d in dates_to_scan:
+            total = scanned.get(d.isoformat(), 0)
+            results.append((d, total))
+            # Write cache
+            try:
+                (CACHE_DIR / f"day-{d.isoformat()}.txt").write_text(str(total))
+            except OSError:
+                pass
+
+    # Sort by date and return just the totals
+    results.sort(key=lambda x: x[0])
+    return [t for _, t in results]
+
+
+def format_tokens(n: int) -> str:
+    """Format token count as human-readable: 0, 420K, 2.1M."""
+    if n >= 1_000_000:
+        val = n / 1_000_000
+        return f"{val:.1f}M" if val < 10 else f"{int(val)}M"
+    if n >= 1_000:
+        val = n / 1_000
+        return f"{int(val)}K"
+    return str(n)
+
+
+def build_sparkline(values: list[int]) -> str:
+    """Build a 7-char sparkline from daily values."""
+    max_val = max(values)
+    min_val = min(values)
+
+    if max_val == 0:
+        # All zeros
+        return SPARKLINE_CHARS[0] * len(values)
+
+    if max_val == min_val:
+        # All equal non-zero — show middle block
+        return SPARKLINE_CHARS[3] * len(values)
+
+    # Proportional mapping
+    chars = []
+    for v in values:
+        if v == 0:
+            chars.append(SPARKLINE_CHARS[0])
+        else:
+            # Map to index 0-7
+            idx = int((v - min_val) / (max_val - min_val) * 7)
+            idx = min(idx, 7)
+            chars.append(SPARKLINE_CHARS[idx])
+    return "".join(chars)
+
+
+def read_config() -> dict:
+    """Read optional config file for thresholds."""
+    config = {}
+    if not CONFIG_FILE.exists():
+        return config
+    try:
+        for line in CONFIG_FILE.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                key, val = line.split("=", 1)
+                config[key.strip()] = val.strip()
+    except OSError:
+        pass
+    return config
+
+
+def get_color(total: int, config: dict) -> str:
+    """Determine tmux color code based on thresholds."""
+    try:
+        warn = int(config.get("warn", "0"))
+        alert = int(config.get("alert", "0"))
+    except ValueError:
+        return "#[fg=colour8]"
+
+    if warn <= 0 or alert <= 0:
+        return "#[fg=colour8]"
+
+    if total >= alert:
+        return "#[fg=colour1]"  # red
+    if total >= warn:
+        return "#[fg=colour3]"  # yellow
+    return "#[fg=colour2]"  # green
+
+
+def main():
+    try:
+        today = datetime.now().date()
+        daily_totals = get_daily_totals(today)
+        today_total = daily_totals[-1]
+        sparkline = build_sparkline(daily_totals)
+        formatted = format_tokens(today_total)
+
+        config = read_config()
+        color = get_color(today_total, config)
+
+        # Output tmux-formatted string
+        print(f"{color}{formatted} {sparkline}")
+    except Exception:
+        # Never crash — tmux #() blocks on broken scripts
+        print("#[fg=colour8]? ·······")
+
+
+if __name__ == "__main__":
+    main()
