@@ -24,6 +24,7 @@ LINKS=(
   ".config/graphite/aliases:$HOME/.config/graphite/aliases"
   ".claude/settings.json:$HOME/.claude/settings.json"
   ".local/bin/claude-restart-all:$HOME/.local/bin/claude-restart-all"
+  ".local/bin/claude-burn:$HOME/.local/bin/claude-burn"
   ".claude/skills/claude-reload-all:$HOME/.claude/skills/claude-reload-all"
   ".p10k.zsh:$HOME/.p10k.zsh"
 )

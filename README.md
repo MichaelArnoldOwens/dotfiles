@@ -13,6 +13,7 @@ Shared developer environment configs for the team. Optimized for a workflow usin
 | `.gitignore_global` | Machine-wide ignores: `.DS_Store`, editor files, `.env`, `node_modules`, `__pycache__` |
 | `.config/graphite/aliases` | Shortcuts for stacked PR workflow (`gt cb`, `gt cs`, `gt ss`, etc.) |
 | `.claude/settings.json` | Claude Code `acceptEdits` permission mode, auto-sync hooks, secret scanning |
+| `.local/bin/claude-burn` | Daily Claude token usage counter displayed in tmux status bar |
 | `.claude/mcp-servers.json` | MCP server definitions (merged into `~/.claude.json` by install.sh) |
 
 ## Setup
@@ -103,6 +104,8 @@ Some features are gated by platform to avoid issues on the wrong OS:
 
 | Feature | macOS | Linux | How it's gated |
 |---------|-------|-------|----------------|
+| Token usage in status bar | Yes | Yes | `claude-burn` script via `#()` in status-right |
+|---------|-------|-------|----------------|
 | Light tmux theme | Yes | No (dark default) | `uname -s` check in `.tmux.conf` |
 | F12 nested tmux toggle | Yes | No | `uname -s` check in `.tmux.conf` |
 | iTerm2 shell integration | Yes | No (skipped) | `$OSTYPE` check in `.zshrc` |
@@ -120,6 +123,7 @@ Some features are gated by platform to avoid issues on the wrong OS:
 ├── .gitignore_global           → ~/.gitignore_global
 ├── .config/graphite/aliases    → ~/.config/graphite/aliases
 ├── .claude/settings.json       → ~/.claude/settings.json
+├── .local/bin/claude-burn      → ~/.local/bin/claude-burn
 ├── .claude/mcp-servers.json    # MCP servers (merged into ~/.claude.json)
 ├── .env.local.template         # Reference for ~/.env.local
 ├── .gitconfig.local.template   # Reference for ~/.gitconfig.local
@@ -161,6 +165,32 @@ HTTP servers authenticate via browser OAuth on first use. Slack requires an addi
 **Cloud connectors** (claude.ai Figma, Excalidraw) and **plugins** (figma, ralph-loop) are account-level — they follow your Anthropic login and don't need local config.
 
 To add or remove servers, edit `.claude/mcp-servers.json` and re-run `./install.sh`.
+
+## Claude token usage (`claude-burn`)
+
+The tmux status bar shows daily Claude Code output token usage with a 7-day sparkline trend (e.g., `221K ▁▁▁▂▅▂█`). The script scans JSONL transcript files in `~/.claude/projects/` every tmux status-interval tick (~15s).
+
+### Color thresholds (optional)
+
+By default the counter uses a neutral color. To add green/yellow/red thresholds based on daily output token count:
+
+```bash
+mkdir -p ~/.config/claude-burn
+cat > ~/.config/claude-burn/config << 'EOF'
+# Thresholds for color-coding (output tokens per day)
+# green:  below warn
+# yellow: between warn and alert
+# red:    at or above alert
+warn=500000
+alert=1500000
+EOF
+```
+
+Changes take effect on the next tmux status refresh (no reload needed). To disable color, delete the config file or set values to 0.
+
+### Cache
+
+Historical daily totals are cached in `~/.cache/claude-burn/day-YYYY-MM-DD.txt` (one integer per file). Today and yesterday are always recomputed live. The cache warms over 7 days — until then, uncached days show as `▁` in the sparkline.
 
 ## Graphite aliases
 
