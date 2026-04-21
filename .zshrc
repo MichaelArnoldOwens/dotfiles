@@ -208,6 +208,7 @@ alias gd='gt diff'              # Diff current branch
 alias cr='command claude --resume'
 alias cc='command claude --continue'
 alias claude-yolo='command claude --dangerously-skip-permissions'
+alias codex-yolo='command codex --dangerously-bypass-approvals-and-sandbox'
 
 # Shortcuts
 alias cls='clear'
