@@ -1,31 +1,26 @@
-############ LOCAL ENVIRONMENT ##############
-# Load machine-specific secrets and env vars (API keys, personal identity, etc.)
-# This file is NOT in the dotfiles repo. See .env.local.template for required vars.
-[[ -f ~/.env.local ]] && source ~/.env.local
-########################################################
+# =============================================================================
+# .zshrc — zsh startup file (interactive shells)
+#
+# Shared/portable config (env, PATH, aliases, dx/feat/gt) lives in .shellrc
+# and is sourced at the bottom. Everything in this file is zsh-only:
+# Oh My Zsh, Powerlevel10k, completion zstyles, plugins.
+# =============================================================================
 
-############ TMUX CONFIGURATION ############
-
-# Reload tmux config
-alias tmux-reload='tmux source-file ~/.tmux.conf && echo "tmux config reloaded!"'
-
-# Auto-start tmux on new terminal sessions
-# - Only starts if tmux is installed
-# - Only starts if not already inside tmux
-# - Only starts for interactive shells
-# - Uses "grouped sessions" so each Ghostty window gets its own independent
-#   view of the shared windows (can look at different windows simultaneously).
-#   Closing a Ghostty window destroys the grouped session but keeps the windows.
+############ TMUX AUTO-START ############
+# Auto-start tmux on new terminal sessions:
+# - Only if tmux is installed
+# - Only if not already inside tmux
+# - Only for interactive shells
+# Uses "grouped sessions" so each terminal window gets its own independent
+# view of the shared windows. Closing the terminal destroys the grouped
+# session but keeps the windows.
 if command -v tmux &> /dev/null && [[ -z "$TMUX" ]] && [[ $- == *i* ]]; then
   if tmux has-session -t main 2>/dev/null; then
-    # Create a grouped session linked to "main" with a unique name.
-    # -t main = group with "main" (shares windows, independent current-window).
     exec tmux new-session -t main
   else
     exec tmux new-session -s main
   fi
 fi
-
 ########################################################
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -35,83 +30,15 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# If you come from bash you might have to change your $PATH.
-export PATH="$HOME/.local/bin:$PATH"
-
-# Path to your Oh My Zsh installation.
+############ OH MY ZSH ############
 export ZSH="$HOME/.oh-my-zsh"
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
 # Plugins:
-#   git                — 200+ git aliases (ga, gc, gp, gl, gst, etc). Run `alias | grep git` to see all.
-#   iterm2             — Enables iTerm2 shell integration (macOS only, auto-skipped elsewhere).
-#   zsh-autosuggestions — Fish-like inline suggestions (grey shadow text as you type, → to accept).
-#   zsh-completions    — Extra completion definitions for hundreds of CLI tools.
+#   git                — 200+ git aliases (ga, gc, gp, gl, gst, etc).
+#   iterm2             — Enables iTerm2 shell integration (macOS only).
+#   zsh-autosuggestions — Fish-like inline suggestions (grey shadow text).
+#   zsh-completions    — Extra completion definitions for hundreds of CLIs.
 plugins=(git zsh-autosuggestions zsh-completions)
 if [[ "$OSTYPE" == darwin* ]]; then
   plugins+=(iterm2)
@@ -125,182 +52,25 @@ HISTSIZE=100000
 SAVEHIST=100000
 # HIST_IGNORE_ALL_DUPS: drop older duplicates so suggestions stay fresh.
 # HIST_REDUCE_BLANKS:   normalize whitespace before saving.
-# HIST_IGNORE_SPACE:    leading-space commands are not recorded (one-off secrets).
+# HIST_IGNORE_SPACE:    leading-space commands are not recorded.
 setopt HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS HIST_IGNORE_SPACE
 
 # --- Completion system ---
-# Menu-driven completion: tab cycles through options shown in a list
 zstyle ':completion:*' menu select
-# Case-insensitive matching (abc matches Abc, ABC, etc.)
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-# Group completions by category with headers
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*:descriptions' format '%F{cyan}-- %d --%f'
 
 # --- Autosuggestion settings ---
-# Use history first, then completion engine as fallback
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-# Subtle grey for the inline suggestion
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=245"
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch $(uname -m)"
-
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-export GPG_TTY=$(tty)
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# Powerlevel10k config (run `p10k configure` to regenerate).
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Created by the `uv` curl installer to add ~/.local/bin to PATH.
-# Guarded because system-package-managed uv installs (e.g. apt, /usr/local/bin)
-# don't create this file.
-[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
-
-############ TMUX SESSION HELPERS ############
-# Quick shortcuts for the two-session workflow:
-#   dx   — DX/tooling improvements session
-#   feat — Feature development session
-# Each creates or attaches to a named session. Run from outside tmux, or
-# use `prefix + s` inside tmux to switch between sessions.
-
-dx() {
-  if [[ -n "$TMUX" ]]; then
-    tmux switch-client -t dx 2>/dev/null || tmux new-session -d -s dx && tmux switch-client -t dx
-  else
-    tmux attach-session -t dx 2>/dev/null || tmux new-session -s dx
-  fi
-}
-
-feat() {
-  if [[ -n "$TMUX" ]]; then
-    tmux switch-client -t feat 2>/dev/null || tmux new-session -d -s feat && tmux switch-client -t feat
-  else
-    tmux attach-session -t feat 2>/dev/null || tmux new-session -s feat
-  fi
-}
-
-########################################################
-
-############ SHELL ALIASES ############
-# Editor (macOS only — Cursor is a desktop app)
-[[ "$OSTYPE" == darwin* ]] && alias ce='cursor .'
-
-# Graphite (primary git workflow — see also ~/.config/graphite/aliases)
-alias gs='gt status'            # Branch stack status
-alias gd='gt diff'              # Diff current branch
-
-# Claude Code shortcuts
-alias cr='command claude --resume'
-alias cc='command claude --continue'
-alias claude-yolo='command claude --dangerously-skip-permissions'
-alias codex-yolo='command codex --dangerously-bypass-approvals-and-sandbox'
-
-# Shortcuts
-alias cls='clear'
-alias ll='ls -la'
-alias ..='cd ..'
-alias ...='cd ../..'
-########################################################
-
-############ GRAPHITE (gt) PRE-COMMIT TIMER ############
-
-gt() {
-  # Only intercept `gt commit ...`
-  if [[ "$1" != "commit" ]]; then
-    command gt "$@"
-    return
-  fi
-
-  local STATS_FILE="${XDG_DATA_HOME:-$HOME/.local/share}/git-precommit-stats.json"
-  # macOS fallback: uses ~/.local/share/ (same as Linux) instead of ~/Library/Application Support/
-  mkdir -p "$(dirname "$STATS_FILE")"
-  [[ -f "$STATS_FILE" ]] || echo "{}" > "$STATS_FILE"
-
-  local NO_VERIFY=0
-  for arg in "$@"; do
-    [[ "$arg" == "--no-verify" || "$arg" == "-n" ]] && NO_VERIFY=1
-  done
-
-  local start_ns end_ns elapsed_s
-  start_ns=$(python3 - <<'PY'
-import time; print(time.time_ns())
-PY
-)
-
-  command gt "$@"
-  local status=$?
-
-  end_ns=$(python3 - <<'PY'
-import time; print(time.time_ns())
-PY
-)
-
-  elapsed_s=$(((end_ns - start_ns) / 1000000000))
-
-  local today repo
-  today=$(date "+%Y-%m-%d")
-  repo=$(command git rev-parse --show-toplevel 2>/dev/null | sed 's|/|_|g')
-
-  python3 - "$STATS_FILE" "$today" "$elapsed_s" "$NO_VERIFY" "$repo" <<'PY'
-import json, sys
-
-path, day, secs, no_verify, repo = sys.argv[1:]
-secs = int(secs)
-no_verify = int(no_verify)
-
-with open(path, "r") as f:
-    raw = f.read().strip()
-data = json.loads(raw) if raw else {}
-
-day_entry = data.setdefault(day, {})
-repos = data.setdefault("_repos", {})
-
-repo_key = repo or "unknown"
-repo_entry = repos.setdefault(repo_key, {})
-last = int(repo_entry.get("last_seconds", 0))
-
-if no_verify:
-    # Estimate "saved" time based on last observed commit duration for this repo
-    if last > 0:
-        day_entry["estimated_saved_seconds"] = day_entry.get("estimated_saved_seconds", 0) + last
-else:
-    # Accumulate actual time spent waiting on commit path (includes hooks)
-    day_entry["commit_seconds"] = day_entry.get("commit_seconds", 0) + secs
-    repo_entry["last_seconds"] = secs
-
-with open(path, "w") as f:
-    json.dump(data, f, indent=2)
-PY
-
-  return $status
-}
-
+############ SHARED PORTABLE CONFIG ############
+# Sources env, PATH, aliases, and dx/feat/gt functions shared with .bashrc.
+[[ -f ~/.shellrc ]] && source ~/.shellrc
 ########################################################

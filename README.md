@@ -8,7 +8,9 @@ Shared developer environment configs for the team. Optimized for a workflow usin
 |------|--------------------|
 | `.tmux.conf` | Pane visibility (inactive dimming), session persistence, vi-style navigation, interactive menus |
 | `.tmux/menus.conf` | Interactive tmux menus (prefix + Space) |
-| `.zshrc` | Oh My Zsh + Powerlevel10k, iTerm2 shell integration, tmux auto-start, Graphite commit timer |
+| `.shellrc` | Portable config sourced by both shells: `~/.local/bin` PATH, aliases, `dx`/`feat`/`gt` functions, `~/.env.local` loader |
+| `.zshrc` | zsh-only: Oh My Zsh + Powerlevel10k, iTerm2 shell integration, tmux auto-start. Sources `.shellrc` |
+| `.bashrc` | bash-only: Ubuntu-style prompt, history, completion. Sources `.shellrc`. Used on Linux devbox and inside Claude Code's bash subshell |
 | `.gitconfig` | Delta syntax-highlighted diffs, SSH commit signing, global gitignore, GitHub SSH rewrite |
 | `.gitignore_global` | Machine-wide ignores: `.DS_Store`, editor files, `.env`, `node_modules`, `__pycache__` |
 | `.config/graphite/aliases` | Shortcuts for stacked PR workflow (`gt cb`, `gt cs`, `gt ss`, etc.) |
@@ -118,7 +120,9 @@ Some features are gated by platform to avoid issues on the wrong OS:
 ├── CLAUDE.md                   # Claude Code repo instructions (auto-loaded)
 ├── .tmux.conf                  → ~/.tmux.conf
 ├── .tmux/menus.conf            → ~/.tmux/menus.conf
+├── .shellrc                    → ~/.shellrc
 ├── .zshrc                      → ~/.zshrc
+├── .bashrc                     → ~/.bashrc
 ├── .gitconfig                  → ~/.gitconfig
 ├── .gitignore_global           → ~/.gitignore_global
 ├── .config/graphite/aliases    → ~/.config/graphite/aliases

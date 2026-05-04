@@ -1,0 +1,135 @@
+# =============================================================================
+# .shellrc — Portable shell config sourced by both .bashrc and .zshrc
+#
+# Contains everything that works in either shell: PATH, env vars, aliases,
+# and bash/zsh-compatible functions. Shell-specific config (Oh My Zsh,
+# Powerlevel10k, zsh setopt/zstyle, bash prompt) stays in .zshrc / .bashrc.
+# =============================================================================
+
+# --- Local environment ---
+# Machine-specific secrets and env vars (API keys, personal identity, etc).
+# Not in the dotfiles repo — see .env.local.template.
+[[ -f ~/.env.local ]] && source ~/.env.local
+
+# --- PATH ---
+export PATH="$HOME/.local/bin:$PATH"
+
+# Created by the `uv` curl installer. Guarded because system-package-managed
+# installs (apt, /usr/local/bin) don't create this file.
+[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
+
+# --- Misc env ---
+export GPG_TTY=$(tty)
+
+# --- Aliases ---
+# Editor (macOS only — Cursor is a desktop app)
+[[ "$OSTYPE" == darwin* ]] && alias ce='cursor .'
+
+# Graphite (primary git workflow — see also ~/.config/graphite/aliases)
+alias gs='gt status'
+alias gd='gt diff'
+
+# Claude Code shortcuts
+alias cr='command claude --resume'
+alias cc='command claude --continue'
+alias claude-yolo='command claude --dangerously-skip-permissions'
+alias codex-yolo='command codex --dangerously-bypass-approvals-and-sandbox'
+
+# tmux
+alias tmux-reload='tmux source-file ~/.tmux.conf && echo "tmux config reloaded!"'
+
+# Shortcuts
+alias cls='clear'
+alias ll='ls -la'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# --- tmux session helpers ---
+# Quick shortcuts for the two-session workflow:
+#   dx   — DX/tooling improvements
+#   feat — Feature development
+dx() {
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t dx 2>/dev/null || { tmux new-session -d -s dx && tmux switch-client -t dx; }
+  else
+    tmux attach-session -t dx 2>/dev/null || tmux new-session -s dx
+  fi
+}
+
+feat() {
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t feat 2>/dev/null || { tmux new-session -d -s feat && tmux switch-client -t feat; }
+  else
+    tmux attach-session -t feat 2>/dev/null || tmux new-session -s feat
+  fi
+}
+
+# --- Graphite (gt) pre-commit timer ---
+# Wraps `gt commit` to record commit-hook time spent vs. estimated time saved
+# by --no-verify. Stats land in ~/.local/share/git-precommit-stats.json.
+gt() {
+  if [[ "$1" != "commit" ]]; then
+    command gt "$@"
+    return
+  fi
+
+  local STATS_FILE="${XDG_DATA_HOME:-$HOME/.local/share}/git-precommit-stats.json"
+  mkdir -p "$(dirname "$STATS_FILE")"
+  [[ -f "$STATS_FILE" ]] || echo "{}" > "$STATS_FILE"
+
+  local NO_VERIFY=0
+  for arg in "$@"; do
+    [[ "$arg" == "--no-verify" || "$arg" == "-n" ]] && NO_VERIFY=1
+  done
+
+  local start_ns end_ns elapsed_s
+  start_ns=$(python3 - <<'PY'
+import time; print(time.time_ns())
+PY
+)
+
+  command gt "$@"
+  local status=$?
+
+  end_ns=$(python3 - <<'PY'
+import time; print(time.time_ns())
+PY
+)
+
+  elapsed_s=$(((end_ns - start_ns) / 1000000000))
+
+  local today repo
+  today=$(date "+%Y-%m-%d")
+  repo=$(command git rev-parse --show-toplevel 2>/dev/null | sed 's|/|_|g')
+
+  python3 - "$STATS_FILE" "$today" "$elapsed_s" "$NO_VERIFY" "$repo" <<'PY'
+import json, sys
+
+path, day, secs, no_verify, repo = sys.argv[1:]
+secs = int(secs)
+no_verify = int(no_verify)
+
+with open(path, "r") as f:
+    raw = f.read().strip()
+data = json.loads(raw) if raw else {}
+
+day_entry = data.setdefault(day, {})
+repos = data.setdefault("_repos", {})
+
+repo_key = repo or "unknown"
+repo_entry = repos.setdefault(repo_key, {})
+last = int(repo_entry.get("last_seconds", 0))
+
+if no_verify:
+    if last > 0:
+        day_entry["estimated_saved_seconds"] = day_entry.get("estimated_saved_seconds", 0) + last
+else:
+    day_entry["commit_seconds"] = day_entry.get("commit_seconds", 0) + secs
+    repo_entry["last_seconds"] = secs
+
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+PY
+
+  return $status
+}

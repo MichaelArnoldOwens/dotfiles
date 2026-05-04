@@ -18,7 +18,9 @@ TIMESTAMP=$(date +%Y%m%d%H%M%S)
 LINKS=(
   ".tmux.conf:$HOME/.tmux.conf"
   ".tmux/menus.conf:$HOME/.tmux/menus.conf"
+  ".shellrc:$HOME/.shellrc"
   ".zshrc:$HOME/.zshrc"
+  ".bashrc:$HOME/.bashrc"
   ".gitconfig:$HOME/.gitconfig"
   ".gitignore_global:$HOME/.gitignore_global"
   ".config/graphite/aliases:$HOME/.config/graphite/aliases"
