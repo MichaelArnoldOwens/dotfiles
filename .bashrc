@@ -76,6 +76,4 @@ fi
 
 # --- Shared portable config (env, PATH, aliases, dx/feat/gt) ---
 [ -f ~/.shellrc ] && . ~/.shellrc
-
-# --- Land in workspace on every interactive shell (Linux devbox convenience) ---
-[ -d "$HOME/workspace" ] && [ -z "$WORKSPACE_NO_CD" ] && cd "$HOME/workspace"
+export PATH=~/.npm-global/bin:$PATH
