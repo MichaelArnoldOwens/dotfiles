@@ -118,6 +118,16 @@ if [[ "$OSTYPE" == darwin* ]]; then
   zstyle :omz:plugins:iterm2 shell-integration yes
 fi
 
+# --- History ---
+# Larger history so zsh-autosuggestions has more to draw from.
+HISTFILE=~/.zsh_history
+HISTSIZE=100000
+SAVEHIST=100000
+# HIST_IGNORE_ALL_DUPS: drop older duplicates so suggestions stay fresh.
+# HIST_REDUCE_BLANKS:   normalize whitespace before saving.
+# HIST_IGNORE_SPACE:    leading-space commands are not recorded (one-off secrets).
+setopt HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS HIST_IGNORE_SPACE
+
 # --- Completion system ---
 # Menu-driven completion: tab cycles through options shown in a list
 zstyle ':completion:*' menu select
