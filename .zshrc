@@ -179,7 +179,10 @@ export GPG_TTY=$(tty)
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-. "$HOME/.local/bin/env"
+# Created by the `uv` curl installer to add ~/.local/bin to PATH.
+# Guarded because system-package-managed uv installs (e.g. apt, /usr/local/bin)
+# don't create this file.
+[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
 
 ############ TMUX SESSION HELPERS ############
 # Quick shortcuts for the two-session workflow:
