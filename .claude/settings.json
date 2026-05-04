@@ -125,5 +125,6 @@
   },
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "teammateMode": "in-process"
 }
