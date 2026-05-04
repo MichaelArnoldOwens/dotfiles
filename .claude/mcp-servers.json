@@ -36,11 +36,8 @@
     },
     "pagerduty": {
       "type": "stdio",
-      "command": "uvx",
-      "args": ["pagerduty-mcp"],
-      "env": {
-        "PAGERDUTY_USER_API_KEY": "${PAGERDUTY_USER_API_KEY}"
-      }
+      "command": "bash",
+      "args": ["-c", "source ~/.env.local && exec uvx pagerduty-mcp --enable-write-tools"]
     }
   }
 }
