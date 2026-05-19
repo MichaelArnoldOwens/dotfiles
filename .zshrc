@@ -74,3 +74,6 @@ source $ZSH/oh-my-zsh.sh
 # Sources env, PATH, aliases, and dx/feat/gt functions shared with .bashrc.
 [[ -f ~/.shellrc ]] && source ~/.shellrc
 ########################################################
+
+# heygen-skills: pull latest and sync Claude skills
+alias update-skills='/home/ubuntu/heygen-skills/update-skills.sh'
