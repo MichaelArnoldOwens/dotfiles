@@ -3,7 +3,10 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "allow": [
+      "allow rule for mcp__slack__slack_read_history scoped to channel_id:C0B66EFNGJ2"
+    ]
   },
   "hooks": {
     "PreToolUse": [
