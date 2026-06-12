@@ -28,6 +28,7 @@ LINKS=(
   ".local/bin/claude-restart-all:$HOME/.local/bin/claude-restart-all"
   ".local/bin/claude-burn:$HOME/.local/bin/claude-burn"
   ".claude/skills/claude-reload-all:$HOME/.claude/skills/claude-reload-all"
+  ".claude/skills/tutor:$HOME/.claude/skills/tutor"
   ".p10k.zsh:$HOME/.p10k.zsh"
 )
 
