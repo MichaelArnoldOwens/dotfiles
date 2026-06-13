@@ -101,6 +101,16 @@ agent-browser snapshot -i 2>&1 | grep -qE "Continue with email|Use email|Log in|
 
 Jump to **First-Time Login Flow** below. After it completes, the session is persisted under `--session-name pacific` again.
 
+**Critical for the login flow: do NOT use headless mode.** Cloudflare Turnstile on `auth.heygen.com` will not auto-resolve in headless Chromium — form fields silently clear on each click cycle and the `Log in` button stays disabled. Run the login flow with `--headed`. On a headless Linux pod (no display) wrap the agent-browser invocation in `xvfb-run -a` to give Chromium a virtual display:
+
+```bash
+# Linux pod without a display — wrap in xvfb-run for the login flow
+xvfb-run -a agent-browser --headed --session-name pacific open http://localhost:8081/create-v4/ --wait networkidle
+xvfb-run -a agent-browser --headed --session-name pacific snapshot -i   # etc.
+```
+
+Once the session is saved by `--session-name`, post-login operations (eval, screenshot, navigate) can drop back to headless — the cookie/storage state persists. The `--headed` requirement is specifically for the Turnstile-gated login flow itself. On macOS with a real display, `--headed` alone is sufficient (no xvfb).
+
 ### 4. Set API env (defaults to `prod`)
 
 The default env is **`prod`** for testing. Set it when `--env` is specified, when the bottom-right DevConfig badge shows the wrong env, or whenever you're unsure (a no-op reload is cheap):
