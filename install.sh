@@ -29,6 +29,7 @@ LINKS=(
   ".local/bin/claude-burn:$HOME/.local/bin/claude-burn"
   ".claude/skills/claude-reload-all:$HOME/.claude/skills/claude-reload-all"
   ".claude/skills/tutor:$HOME/.claude/skills/tutor"
+  ".claude/skills/agent-browser-login:$HOME/.claude/skills/agent-browser-login"
   ".p10k.zsh:$HOME/.p10k.zsh"
 )
 
@@ -136,6 +137,7 @@ case "$(uname -s)" in
     echo "  brew install terminal-notifier # macOS notifications (required for claude-notify)"
     echo "  brew install ffmpeg yt-dlp     # video skill (optional)"
     echo "  pip3 install openai google-generativeai  # video skill (optional)"
+    echo "  npm install -g agent-browser   # required for agent-browser-login skill"
     ;;
   Linux)
     echo "  # Linux (apt)"
@@ -143,6 +145,7 @@ case "$(uname -s)" in
     echo "  sudo apt install git-delta     # syntax-highlighted diffs"
     echo "  sudo apt install ffmpeg        # video skill (optional)"
     echo "  pip3 install yt-dlp openai google-generativeai  # video skill (optional)"
+    echo "  npm install -g agent-browser   # required for agent-browser-login skill"
     ;;
   *)
     echo "  (unknown platform — install git-delta manually)"
